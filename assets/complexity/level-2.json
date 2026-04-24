@@ -1,0 +1,6 @@
+{
+  "brief": "- Complexity level 2: keep a balanced task description.\n- Capture enough detail to execute safely without turning the node into an epic.",
+  "execute": "- Use a short implementation checklist.\n- Reassess complexity when new dependencies or child nodes appear.",
+  "validate": "- Confirm the node remains medium-complexity.\n- Add focused validation for the main behavior and the main regression risk.",
+  "roadmap": "## Managed complexity guidance\n\n- Use a practical roadmap with clear phases.\n- Expand only the parts needed for safe execution and handoff."
+}

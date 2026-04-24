@@ -1,0 +1,97 @@
+---
+name: recursive-task-authoring
+description: Create, split, normalize, and resume recursive self-contained task trees with materialized effective rules per node. Use when Codex needs to create a root task, add a child task/subtask, sync inherited rules, or leave a task resumable without relying on prior chat memory. Prefer storing project-local task assets, project rules, and skill config under the project's TODO folder.
+---
+
+# Recursive Task Authoring
+
+## Overview
+
+Use this skill to build recursive work-package trees where every node is executable in isolation.
+Prefer this workflow when tasks must survive context compression, handoffs, or deep nesting without losing inherited rules, resume state, or the right level of task-detailing.
+
+## Read Order
+
+1. Read [references/node-contract.md](references/node-contract.md).
+2. Read [references/inheritance-rules.md](references/inheritance-rules.md).
+3. Read [references/resume-protocol.md](references/resume-protocol.md) when resuming or leaving a partially completed task.
+4. Read [references/complexity-levels.md](references/complexity-levels.md).
+5. Read [references/project-layout.md](references/project-layout.md).
+6. Read [references/cli-contract.md](references/cli-contract.md) before running scripts directly.
+
+## Workflow
+
+### 1. Inspect the current tree
+
+- Identify whether the request needs a new root node, a child node, or a rules refresh.
+- Read the target node's `entrypoint.md`, `meta.yaml`, and `rules/effective-rules.md` before deciding anything.
+- Treat the project-local operating surface as `TODO/` whenever the project has one.
+- Treat legacy layouts as out of scope for v1; do not migrate them silently.
+
+### 2. Create or extend the tree
+
+- Use `scripts/init_work_package.py` to create a root node or child node.
+- Keep IDs hierarchical: `TASK-001`, `TASK-001-01`, `TASK-001-01-01`.
+- Keep one node contract for every depth level; do not invent alternate layouts for subtasks.
+- Let the skill choose complexity automatically unless a user asks for a specific level.
+- Keep project-local config and project rules under `TODO/`, not inside the global skill folder.
+
+### 3. Review complexity and migrate if needed
+
+- Use `scripts/sync_complexity.py` to review the current node shape and align it to complexity level 1, 2, or 3.
+- Complexity level 3 is the simplest layout, level 1 is the most detailed layout.
+- Preserve manual content outside managed complexity blocks when migrating between levels.
+
+### 4. Materialize effective rules
+
+- Use `scripts/sync_rules.py` whenever inherited or local rules change.
+- Complexity review runs before rules synchronization so the node always keeps the right detail level.
+- Always execute tasks from `rules/effective-rules.md`, not by re-reading all parent rule files.
+- Preserve precedence: user-global rules, project rules from `TODO/rules/project-rules.md`, parent effective rules, then local node rules.
+- Do not recursively materialize roadmap or context files.
+
+### 5. Leave resumable state
+
+- Use `scripts/update_handoff.py` when a task remains open after a session.
+- Keep `meta.yaml`, `handoff.md`, and `plan/current-step.md` aligned so another agent can resume from disk only.
+- Use explicit statuses: `ready`, `active`, `blocked`, `review`, `done`, `archived`.
+
+### 6. Validate before handing off
+
+- Run `scripts/validate_work_package.py --node <path>` on changed nodes.
+- Run `quick_validate.py` on the skill itself after editing the skill assets.
+- Do not leave nodes without `rules/effective-rules.md`, with inconsistent parent-child metadata, or with stale complexity metadata.
+
+## Guardrails
+
+- Do not depend on prior chat history to execute a node.
+- Do not encode task state in folder names.
+- Do not let children contradict inherited rules; children may only add tighter restrictions.
+- Do not skip rule synchronization after editing local rules, project rules, or user-global rules.
+- Do not downgrade or upgrade complexity by manually rewriting whole files when managed blocks can be migrated automatically.
+- Do not migrate legacy trees automatically in v1.
+
+## Script Entry Points
+
+- `scripts/init_work_package.py --root <dir> --id <id> --title <title> [--parent <path>] [--type <type>] [--complexity <auto|1|2|3>]`
+- `scripts/sync_complexity.py --node <path> [--level <auto|1|2|3>]`
+- `scripts/sync_rules.py --node <path>`
+- `scripts/resolve_effective_state.py --node <path>`
+- `scripts/update_handoff.py --node <path> --status <status> --next-action "<text>"`
+- `scripts/validate_work_package.py --node <path>`
+
+## Node Execution Rule
+
+When using a generated node, read only:
+
+- `entrypoint.md`
+- `meta.yaml`
+- `rules/effective-rules.md`
+- `context/local-context.md`
+- `plan/local-roadmap.md`
+- `plan/current-step.md`
+- `execute.md`
+- `validate.md`
+- `handoff.md`
+
+If that local material is still insufficient, inspect only the direct parent node for extra context. Do not reconstruct the whole tree by default.

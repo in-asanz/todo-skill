@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recursive Task Authoring"
+  short_description: "Create recursive self-contained task trees"
+  default_prompt: "Use $recursive-task-authoring to create a self-contained recursive task tree."
