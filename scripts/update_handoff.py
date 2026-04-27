@@ -4,7 +4,18 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from work_package_lib import VALID_STATUSES, generate_effective_files, is_node_dir, load_yaml, sync_complexity, today_iso, write_yaml
+from work_package_lib import (
+    USER_GATED_STATUSES,
+    VALID_STATUSES,
+    find_todo_root,
+    generate_effective_files,
+    is_node_dir,
+    load_yaml,
+    sync_complexity,
+    today_iso,
+    update_tasks_entrypoint,
+    write_yaml,
+)
 
 
 def rewrite_handoff(node: Path, status: str, next_action: str) -> None:
@@ -49,11 +60,21 @@ def main() -> None:
     parser.add_argument("--node", required=True, help="Path to the work-package node.")
     parser.add_argument("--status", required=True, choices=sorted(VALID_STATUSES))
     parser.add_argument("--next-action", required=True, help="Exact next action for the next agent.")
+    parser.add_argument(
+        "--user-approved-terminal-status",
+        action="store_true",
+        help="Require explicit user approval before setting terminal statuses such as done or archived.",
+    )
     args = parser.parse_args()
 
     node = Path(args.node).resolve()
     if not is_node_dir(node):
         raise SystemExit(f"Not a work-package node: {node}")
+    if args.status in USER_GATED_STATUSES and not args.user_approved_terminal_status:
+        raise SystemExit(
+            f"Status '{args.status}' requires explicit user approval. "
+            "Agents must stop at 'review' unless the user authorizes terminal closure."
+        )
 
     sync_complexity(node, "auto")
     generate_effective_files(node)
@@ -65,6 +86,9 @@ def main() -> None:
 
     rewrite_handoff(node, args.status, args.next_action)
     rewrite_current_step(node, args.status, args.next_action)
+    todo_root = find_todo_root(node)
+    if todo_root is not None:
+        update_tasks_entrypoint(todo_root)
     print(f"Updated resumable state for: {node}")
 
 

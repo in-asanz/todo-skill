@@ -9,28 +9,31 @@ Recommended layout:
   TODO/
     AGENTS.md
     config/
-      recursive-task-authoring.json
+      todo-skill.json
     rules/
       project-rules.md
     tasks/
+      entrypoint.md
       TASK-001/
       TASK-002/
 ```
 
 ## Responsibilities
 
-- `.codex/skills/recursive-task-authoring/`: reusable global skill logic
+- `.codex/skills/todo-skill/`: reusable global skill logic
 - `.codex/rules/user-global-rules.md`: user-wide rules source
-- `TODO/config/recursive-task-authoring.json`: optional project-local config for this skill
+- `TODO/config/todo-skill.json`: optional project-local config for this skill
 - `TODO/rules/project-rules.md`: project-level rules source
+- `TODO/tasks/entrypoint.md`: global execution index for all active tasks
 - `TODO/tasks/`: actual task trees and nodes
 
 ## Default behavior
 
 When the target root is inside a `TODO/` tree, the skill should:
 
-- create `TODO/config/recursive-task-authoring.json` if missing
+- create `TODO/config/todo-skill.json` if missing
 - create `TODO/rules/project-rules.md` if missing
+- create `TODO/tasks/entrypoint.md` if missing
 - create task nodes under `TODO/tasks/`
 
 This keeps project-local task assets together and avoids spreading task system files across unrelated folders.

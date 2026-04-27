@@ -9,6 +9,7 @@ import re
 
 VALID_TYPES = {"container", "task", "leaf"}
 VALID_STATUSES = {"ready", "active", "blocked", "review", "done", "archived"}
+USER_GATED_STATUSES = {"done", "archived"}
 VALID_COMPLEXITIES = {1, 2, 3}
 VALID_COMPLEXITY_MODES = {"auto", "manual"}
 ID_RE = re.compile(r"^TASK-\d{3}(?:-\d{2})*$")
@@ -149,10 +150,12 @@ def ensure_project_todo_files(root: Path) -> None:
 
     config_dir = todo_root / "config"
     rules_dir = todo_root / "rules"
+    tasks_dir = todo_root / "tasks"
     config_dir.mkdir(parents=True, exist_ok=True)
     rules_dir.mkdir(parents=True, exist_ok=True)
+    tasks_dir.mkdir(parents=True, exist_ok=True)
 
-    config_path = config_dir / "recursive-task-authoring.json"
+    config_path = config_dir / "todo-skill.json"
     if not config_path.exists():
         config_path.write_text(
             json.dumps(
@@ -176,6 +179,8 @@ def ensure_project_todo_files(root: Path) -> None:
             "- Keep them focused on how tasks should be structured and executed in this repository.\n",
             encoding="utf-8",
         )
+
+    update_tasks_entrypoint(todo_root)
 
 
 def build_inheritance_context(node_dir: Path, parent_id: str | None) -> dict[str, str]:
@@ -311,6 +316,53 @@ def sync_rules(node_dir: Path) -> None:
 
 def generate_effective_files(node_dir: Path) -> None:
     sync_rules(node_dir)
+
+
+def list_top_level_nodes(tasks_root: Path) -> list[Path]:
+    if not tasks_root.exists():
+        return []
+    return sorted(
+        [item for item in tasks_root.iterdir() if is_node_dir(item)],
+        key=lambda path: path.name,
+    )
+
+
+def update_tasks_entrypoint(todo_root: Path) -> None:
+    tasks_root = todo_root / "tasks"
+    tasks_root.mkdir(parents=True, exist_ok=True)
+    entrypoint = tasks_root / "entrypoint.md"
+    nodes = list_top_level_nodes(tasks_root)
+
+    lines = [
+        "# Tasks Entrypoint",
+        "",
+        "Use this file when the user wants to execute all tasks in the project TODO tree.",
+        "",
+        "## Global order",
+        "",
+    ]
+
+    if nodes:
+        for index, node in enumerate(nodes, start=1):
+            meta = load_yaml(node / "meta.yaml")
+            lines.append(
+                f"{index}. `{(node / 'entrypoint.md').relative_to(todo_root).as_posix()}`"
+                f" - status `{meta.get('status', 'unknown')}`, type `{meta.get('type', 'unknown')}`"
+            )
+    else:
+        lines.append("- No task nodes exist yet.")
+
+    lines.extend(
+        [
+            "",
+            "## Rules",
+            "",
+            "- Execute tasks from this file only when the user asks for the whole queue or whole tree.",
+            "- Respect task status and dependencies before starting execution.",
+            "- Update node handoff and status after meaningful progress.",
+        ]
+    )
+    entrypoint.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def validate_meta(meta: dict) -> list[str]:

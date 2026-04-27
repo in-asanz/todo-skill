@@ -18,7 +18,8 @@ python scripts/init_work_package.py --root <dir> --id <id> --title <title> [--pa
 Behavior:
 
 - creates the full node structure
-- bootstraps `TODO/config/recursive-task-authoring.json` and `TODO/rules/project-rules.md` when the root lives under `TODO/`
+- bootstraps `TODO/config/todo-skill.json` and `TODO/rules/project-rules.md` when the root lives under `TODO/`
+- creates or updates `TODO/tasks/entrypoint.md`
 - writes template-driven source files
 - selects or records the complexity level
 - writes `inheritance.yaml`
@@ -75,7 +76,7 @@ Behavior:
 Refresh resume state without editing multiple files manually.
 
 ```text
-python scripts/update_handoff.py --node <path> --status <status> --next-action "<text>"
+python scripts/update_handoff.py --node <path> --status <status> --next-action "<text>" [--user-approved-terminal-status]
 ```
 
 Behavior:
@@ -84,6 +85,8 @@ Behavior:
 - updates `meta.yaml`
 - rewrites `handoff.md`
 - rewrites `plan/current-step.md`
+- updates `TODO/tasks/entrypoint.md` when the node lives under `TODO/`
+- rejects `done` and `archived` unless `--user-approved-terminal-status` is present
 
 ## `validate_work_package.py`
 

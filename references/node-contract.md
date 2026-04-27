@@ -63,6 +63,7 @@ Each work-package node uses the same layout, regardless of depth.
 
 - `type`: `container`, `task`, `leaf`
 - `status`: `ready`, `active`, `blocked`, `review`, `done`, `archived`
+- Agent-driven progression stops at `review`; `done` and `archived` are user-gated terminal statuses.
 
 ## ID format
 

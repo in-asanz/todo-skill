@@ -1,4 +1,4 @@
 interface:
-  display_name: "Recursive Task Authoring"
+  display_name: "Todo Skill"
   short_description: "Create recursive self-contained task trees"
-  default_prompt: "Use $recursive-task-authoring to create a self-contained recursive task tree."
+  default_prompt: "Use $todo-skill to create a self-contained recursive task tree."

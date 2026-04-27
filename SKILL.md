@@ -1,9 +1,9 @@
 ---
-name: recursive-task-authoring
-description: Create, split, normalize, and resume recursive self-contained task trees with materialized effective rules per node. Use when Codex needs to create a root task, add a child task/subtask, sync inherited rules, or leave a task resumable without relying on prior chat memory. Prefer storing project-local task assets, project rules, and skill config under the project's TODO folder.
+name: todo-skill
+description: Create, split, normalize, and resume recursive self-contained TODO task trees with materialized effective rules per node. Use when Codex needs to create a root task, add a child task/subtask, sync inherited rules, or leave a task resumable without relying on prior chat memory. Prefer storing project-local task assets, project rules, and skill config under the project's TODO folder.
 ---
 
-# Recursive Task Authoring
+# Todo Skill
 
 ## Overview
 
@@ -17,7 +17,8 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 3. Read [references/resume-protocol.md](references/resume-protocol.md) when resuming or leaving a partially completed task.
 4. Read [references/complexity-levels.md](references/complexity-levels.md).
 5. Read [references/project-layout.md](references/project-layout.md).
-6. Read [references/cli-contract.md](references/cli-contract.md) before running scripts directly.
+6. Read [references/question-template.md](references/question-template.md) when the repo cannot answer a decision that changes implementation, validation, scope, or closure.
+7. Read [references/cli-contract.md](references/cli-contract.md) before running scripts directly.
 
 ## Workflow
 
@@ -26,6 +27,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Identify whether the request needs a new root node, a child node, or a rules refresh.
 - Read the target node's `entrypoint.md`, `meta.yaml`, and `rules/effective-rules.md` before deciding anything.
 - Treat the project-local operating surface as `TODO/` whenever the project has one.
+- Treat `TODO/tasks/entrypoint.md` as the global tree entrypoint when the user wants to execute all tasks.
 - Treat legacy layouts as out of scope for v1; do not migrate them silently.
 
 ### 2. Create or extend the tree
@@ -35,6 +37,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Keep one node contract for every depth level; do not invent alternate layouts for subtasks.
 - Let the skill choose complexity automatically unless a user asks for a specific level.
 - Keep project-local config and project rules under `TODO/`, not inside the global skill folder.
+- Keep the global task entrypoint inside `TODO/tasks/entrypoint.md`.
 
 ### 3. Review complexity and migrate if needed
 
@@ -55,12 +58,22 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Use `scripts/update_handoff.py` when a task remains open after a session.
 - Keep `meta.yaml`, `handoff.md`, and `plan/current-step.md` aligned so another agent can resume from disk only.
 - Use explicit statuses: `ready`, `active`, `blocked`, `review`, `done`, `archived`.
+- Treat `review` as the last status an agent may set on its own.
+- Set `done` or `archived` only after the user explicitly says to close or retire the node.
 
 ### 6. Validate before handing off
 
 - Run `scripts/validate_work_package.py --node <path>` on changed nodes.
 - Run `quick_validate.py` on the skill itself after editing the skill assets.
 - Do not leave nodes without `rules/effective-rules.md`, with inconsistent parent-child metadata, or with stale complexity metadata.
+
+### 7. Ask only when the repo cannot answer
+
+- Ask the user only when the missing information materially changes implementation, validation, scope, or closure and cannot be recovered from the repo, docs, or existing task tree.
+- When asking, use the template in `references/question-template.md`.
+- Each question must have 3 to 5 mutually exclusive options and exactly one recommended option.
+- Keep questions grouped under the affected task or subtask name.
+- Do not ask questions for facts the environment can answer.
 
 ## Guardrails
 
@@ -70,6 +83,8 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Do not skip rule synchronization after editing local rules, project rules, or user-global rules.
 - Do not downgrade or upgrade complexity by manually rewriting whole files when managed blocks can be migrated automatically.
 - Do not migrate legacy trees automatically in v1.
+- Do not ask the user open-ended implementation questions when a structured multi-option question can close the decision faster.
+- Do not set `done` or `archived` unless the user explicitly authorizes terminal closure; stop at `review` by default.
 
 ## Script Entry Points
 
@@ -77,8 +92,9 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - `scripts/sync_complexity.py --node <path> [--level <auto|1|2|3>]`
 - `scripts/sync_rules.py --node <path>`
 - `scripts/resolve_effective_state.py --node <path>`
-- `scripts/update_handoff.py --node <path> --status <status> --next-action "<text>"`
+- `scripts/update_handoff.py --node <path> --status <status> --next-action "<text>" [--user-approved-terminal-status]`
 - `scripts/validate_work_package.py --node <path>`
+- `quick_validate.py`
 
 ## Node Execution Rule
 

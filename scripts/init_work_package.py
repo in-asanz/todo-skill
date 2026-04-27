@@ -16,6 +16,7 @@ from work_package_lib import (
     render_template,
     sync_complexity,
     today_iso,
+    update_tasks_entrypoint,
 )
 from validate_work_package import validate_node
 
@@ -101,6 +102,9 @@ def create_node(
 
     sync_complexity(node_dir, requested_level=complexity)
     generate_effective_files(node_dir)
+    todo_root = root.parent if root.name == "tasks" else None
+    if todo_root is not None and todo_root.name == "TODO":
+        update_tasks_entrypoint(todo_root)
 
     errors = validate_node(node_dir)
     if errors:
