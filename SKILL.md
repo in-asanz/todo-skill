@@ -38,6 +38,8 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Let the skill choose complexity automatically unless a user asks for a specific level.
 - Keep project-local config and project rules under `TODO/`, not inside the global skill folder.
 - Keep the global task entrypoint inside `TODO/tasks/entrypoint.md`.
+- After finishing the task description, give the user a ready-to-use resume prompt that references the node's base file, `entrypoint.md`.
+- Format the prompt as: `Use $todo-skill and execute the task described in <absolute-or-project-relative-path-to-node>/entrypoint.md`.
 
 ### 3. Review complexity and migrate if needed
 
