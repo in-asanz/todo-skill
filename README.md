@@ -79,8 +79,9 @@ python quick_validate.py
 
 ## Status Rules
 
-Agents may move a task through `backlog`, `ready`, `active`, `blocked`, and `review`.
+Agents may move a task through `backlog`, `ready`, `active`, `blocked`, `review`, and `witherror`.
 Use `backlog` when a task is not fully defined or still needs better execution or validation process definition.
+Use `witherror` when a task was executed and implemented, but validation or review found errors that must be fixed.
 
 Terminal statuses are user-gated:
 

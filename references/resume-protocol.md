@@ -24,9 +24,10 @@ Keep these files aligned:
 - `active`: implementation in progress
 - `blocked`: waiting on a real blocker
 - `review`: implementation done, validation or review still pending
+- `witherror`: implementation was executed, but validation or review found errors that must be fixed
 - `done`: fully closed, but only after the user explicitly asks to close the node
 - `archived`: intentionally retired from active use, but only after the user explicitly asks to retire the node
-- The default agent-owned flow ends at `review`.
+- The default agent-owned flow ends at `review`, or `witherror` when implemented work has known errors.
 
 ## Resume read order
 

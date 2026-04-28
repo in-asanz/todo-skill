@@ -8,7 +8,16 @@ from pathlib import Path
 import re
 
 VALID_TYPES = {"container", "task", "leaf"}
-VALID_STATUSES = {"backlog", "ready", "active", "blocked", "review", "done", "archived"}
+VALID_STATUSES = {
+    "backlog",
+    "ready",
+    "active",
+    "blocked",
+    "review",
+    "witherror",
+    "done",
+    "archived",
+}
 USER_GATED_STATUSES = {"done", "archived"}
 VALID_COMPLEXITIES = {1, 2, 3}
 VALID_COMPLEXITY_MODES = {"auto", "manual"}
