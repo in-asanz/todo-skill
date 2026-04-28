@@ -19,6 +19,7 @@ Keep these files aligned:
 
 ## Status guidance
 
+- `backlog`: task is not fully defined, needs a better definition, or lacks complete and advanced execution or validation processes
 - `ready`: no work started or re-opened and ready to start
 - `active`: implementation in progress
 - `blocked`: waiting on a real blocker

@@ -59,7 +59,8 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 
 - Use `scripts/update_handoff.py` when a task remains open after a session.
 - Keep `meta.yaml`, `handoff.md`, and `plan/current-step.md` aligned so another agent can resume from disk only.
-- Use explicit statuses: `ready`, `active`, `blocked`, `review`, `done`, `archived`.
+- Use explicit statuses: `backlog`, `ready`, `active`, `blocked`, `review`, `done`, `archived`.
+- Use `backlog` when the task is not fully defined, needs a better definition, or lacks complete and advanced execution or validation processes.
 - Treat `review` as the last status an agent may set on its own.
 - Set `done` or `archived` only after the user explicitly says to close or retire the node.
 

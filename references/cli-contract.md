@@ -86,6 +86,7 @@ Behavior:
 - rewrites `handoff.md`
 - rewrites `plan/current-step.md`
 - updates `TODO/tasks/entrypoint.md` when the node lives under `TODO/`
+- accepts `backlog` for tasks that are not fully defined or still need better process definition
 - rejects `done` and `archived` unless `--user-approved-terminal-status` is present
 
 ## `validate_work_package.py`
