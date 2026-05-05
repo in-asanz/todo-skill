@@ -29,6 +29,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Treat the project-local operating surface as `TODO/` whenever the project has one.
 - Treat `TODO/tasks/entrypoint.md` as the global tree entrypoint when the user wants to execute all tasks.
 - Treat legacy layouts as out of scope for v1; do not migrate them silently.
+- When asked about task status, report only the general/top-level tasks by default. Include subtasks only when the user asks for more detail, asks about tasks and subtasks, or asks to increase the tree detail level.
 
 ### 2. Create or extend the tree
 
