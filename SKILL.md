@@ -65,6 +65,9 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Use `witherror` when the task has been executed and implemented, but validation or review found errors that must be fixed.
 - Treat `review` or `witherror` as the last status an agent may set on its own.
 - Set `done` or `archived` only after the user explicitly says to close or retire the node.
+- Treat closure as inherited for interpretation: when a parent or ancestor is `done` or `archived`, every descendant is considered effectively closed even if the descendant's own `meta.yaml.status` still says `ready`, `active`, `blocked`, `review`, or `witherror`.
+- Do not rewrite a child status just because an ancestor closed; report persisted child status and inherited effective closure separately when that distinction matters.
+- Do not execute an effectively closed descendant unless the user explicitly asks to reopen or continue that descendant despite the ancestor closure.
 
 ### 6. Validate before handing off
 
@@ -79,7 +82,6 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Each question must have 3 to 5 mutually exclusive options and exactly one recommended option.
 - Keep questions grouped under the affected task or subtask name.
 - Do not ask questions for facts the environment can answer.
-
 ## Guardrails
 
 - Do not depend on prior chat history to execute a node.
@@ -90,6 +92,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Do not migrate legacy trees automatically in v1.
 - Do not ask the user open-ended implementation questions when a structured multi-option question can close the decision faster.
 - Do not set `done` or `archived` unless the user explicitly authorizes terminal closure; stop at `review` by default, or `witherror` when implemented work has known errors to fix.
+- Do not mutate descendant statuses when closing a parent; inherited closure is an interpretation rule, not a metadata cascade.
 
 ## Script Entry Points
 

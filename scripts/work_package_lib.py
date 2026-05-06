@@ -19,6 +19,7 @@ VALID_STATUSES = {
     "archived",
 }
 USER_GATED_STATUSES = {"done", "archived"}
+TERMINAL_STATUSES = USER_GATED_STATUSES
 VALID_COMPLEXITIES = {1, 2, 3}
 VALID_COMPLEXITY_MODES = {"auto", "manual"}
 ID_RE = re.compile(r"^TASK-\d{3}(?:-\d{2})*$")
@@ -69,6 +70,28 @@ def parent_path(node: Path) -> Path | None:
         return None
     candidate = node.parent.parent
     return candidate if is_node_dir(candidate) else None
+
+
+def ancestor_nodes(node: Path) -> list[Path]:
+    ancestors: list[Path] = []
+    current = node.resolve()
+    while True:
+        parent = parent_path(current)
+        if parent is None:
+            return ancestors
+        ancestors.append(parent)
+        current = parent
+
+
+def nearest_terminal_ancestor(node: Path) -> tuple[Path, dict] | None:
+    for ancestor in ancestor_nodes(node):
+        meta_path = ancestor / "meta.yaml"
+        if not meta_path.exists():
+            continue
+        meta = load_yaml(meta_path)
+        if meta.get("status") in TERMINAL_STATUSES:
+            return ancestor, meta
+    return None
 
 
 def is_node_dir(path: Path) -> bool:
@@ -309,11 +332,29 @@ def sync_rules(node_dir: Path) -> None:
     parent_dir = parent_path(node_dir)
     parent_rules = parent_dir / "rules" / "effective-rules.md" if parent_dir else None
     local_rules = node_dir / "rules" / "local-rules.md"
+    local_meta = load_yaml(node_dir / "meta.yaml")
+    terminal_ancestor = nearest_terminal_ancestor(node_dir)
+    if terminal_ancestor is None:
+        inherited_closure = (
+            f"- This node's persisted status is `{local_meta.get('status', 'unknown')}`.\n"
+            "- No terminal ancestor status was detected when these effective rules were generated.\n"
+            "- If this node is `done` or `archived`, treat this node and every descendant as effectively closed."
+        )
+    else:
+        ancestor_dir, ancestor_meta = terminal_ancestor
+        inherited_closure = (
+            f"- Treat this node as effectively closed because ancestor "
+            f"`{ancestor_meta.get('id', ancestor_dir.name)}` has persisted status "
+            f"`{ancestor_meta.get('status', 'unknown')}`.\n"
+            "- Do not rewrite this node's own `meta.yaml.status` solely to mirror the ancestor closure.\n"
+            "- Report the persisted status and the inherited effective closure separately when status detail matters."
+        )
 
     rules_text = effective_doc(
         "Effective Rules",
         "Use this file during execution. Precedence is user-global, then project-global, then parent effective rules, then local node rules. Local rules may only tighten inherited constraints.",
         (
+            ("Closure status interpretation", "meta.yaml ancestry", inherited_closure),
             ("User-global rules", os_relative(node_dir, user_rules), read_optional(user_rules, "_Missing user-global rules._")),
             ("Project rules", os_relative(node_dir, project_rules) if project_rules and project_rules.exists() else "(none)", read_optional(project_rules, "_No project rules._")),
             ("Parent effective rules", os_relative(node_dir, parent_rules) if parent_rules else "(none)", read_optional(parent_rules, "_No parent effective rules._")),

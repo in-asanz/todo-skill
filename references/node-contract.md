@@ -65,6 +65,13 @@ Each work-package node uses the same layout, regardless of depth.
 - `status`: `backlog`, `ready`, `active`, `blocked`, `review`, `witherror`, `done`, `archived`
 - Agent-driven progression stops at `review`; `done` and `archived` are user-gated terminal statuses.
 
+## Effective Closure
+
+- Persisted status is the literal value in a node's own `meta.yaml.status`.
+- Effective closure is inherited from ancestors: if any parent or ancestor has persisted status `done` or `archived`, treat every descendant as closed for reporting and execution decisions.
+- Do not update descendant `meta.yaml.status` values merely because an ancestor closed.
+- When status detail matters, report both values, for example: persisted `active`, effectively closed by ancestor `TASK-001` status `done`.
+
 ## ID format
 
 - Root: `TASK-001`

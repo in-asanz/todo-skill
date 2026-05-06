@@ -28,6 +28,8 @@ Keep these files aligned:
 - `done`: fully closed, but only after the user explicitly asks to close the node
 - `archived`: intentionally retired from active use, but only after the user explicitly asks to retire the node
 - The default agent-owned flow ends at `review`, or `witherror` when implemented work has known errors.
+- If a parent or ancestor is `done` or `archived`, descendants are effectively closed even when their own persisted status is not terminal.
+- Keep descendant persisted statuses unchanged when an ancestor closes; inherited closure is used for interpretation, reporting, and execution gating only.
 
 ## Resume read order
 
@@ -52,3 +54,5 @@ At the end of an unfinished session, update:
 - `meta.yaml.next_action`
 - `handoff.md`
 - `plan/current-step.md`
+
+When closing a parent node, update only that node's persisted state unless the user explicitly asks to close individual descendants too.

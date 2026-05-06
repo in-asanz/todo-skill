@@ -89,6 +89,7 @@ Terminal statuses are user-gated:
 - `archived`
 
 Use `--user-approved-terminal-status` only when the user explicitly approves closing or retiring a node.
+When a parent task is `done` or `archived`, all descendants are considered effectively closed, but their own `meta.yaml.status` values are not changed automatically.
 
 ## Publishing Notes
 

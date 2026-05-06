@@ -77,12 +77,12 @@ def main() -> None:
         )
 
     sync_complexity(node, "auto")
-    generate_effective_files(node)
     meta = load_yaml(node / "meta.yaml")
     meta["status"] = args.status
     meta["updated_at"] = today_iso()
     meta["next_action"] = args.next_action
     write_yaml(node / "meta.yaml", meta)
+    generate_effective_files(node)
 
     rewrite_handoff(node, args.status, args.next_action)
     rewrite_current_step(node, args.status, args.next_action)
