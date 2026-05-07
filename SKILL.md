@@ -90,7 +90,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Do not let children contradict inherited rules; children may only add tighter restrictions.
 - Do not skip rule synchronization after editing local rules, project rules, or user-global rules.
 - Do not downgrade or upgrade complexity by manually rewriting whole files when managed blocks can be migrated automatically.
-- Do not migrate legacy trees automatically in v1.
+- Do not migrate legacy trees in v1.
 - Do not ask the user open-ended implementation questions when a structured multi-option question can close the decision faster.
 - Do not set `done` or `archived` unless the user explicitly authorizes terminal closure; stop at `review` by default, or `witherror` when implemented work has known errors to fix.
 - Do not mutate descendant statuses when closing a parent; inherited closure is an interpretation rule, not a metadata cascade.
