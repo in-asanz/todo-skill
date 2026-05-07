@@ -35,6 +35,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 
 - Use `scripts/init_work_package.py` to create a root node or child node.
 - Keep IDs hierarchical: `TASK-001`, `TASK-001-01`, `TASK-001-01-01`.
+- Task directories may append an optional descriptive suffix after the ID, using `TASK-001_descriptive-name`; the ID prefix remains the source of ordering and hierarchy.
 - Keep one node contract for every depth level; do not invent alternate layouts for subtasks.
 - Let the skill choose complexity automatically unless a user asks for a specific level.
 - Keep project-local config and project rules under `TODO/`, not inside the global skill folder.
@@ -96,7 +97,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 
 ## Script Entry Points
 
-- `scripts/init_work_package.py --root <dir> --id <id> --title <title> [--parent <path>] [--type <type>] [--complexity <auto|1|2|3>]`
+- `scripts/init_work_package.py --root <dir> --id <id> --title <title> [--folder-name <name>] [--parent <path>] [--type <type>] [--complexity <auto|1|2|3>]`
 - `scripts/sync_complexity.py --node <path> [--level <auto|1|2|3>]`
 - `scripts/sync_rules.py --node <path>`
 - `scripts/resolve_effective_state.py --node <path>`

@@ -9,9 +9,11 @@ from work_package_lib import (
     REQUIRED_DIRS,
     REQUIRED_FILES,
     compute_depth,
+    dir_name_matches_id,
     find_todo_root,
     is_node_dir,
     load_yaml,
+    node_meta_id,
     parent_path,
     validate_meta,
 )
@@ -39,19 +41,23 @@ def validate_node(node: Path) -> list[str]:
         errors.extend(validate_meta(meta))
 
         expected_depth = compute_depth(str(meta.get("id", ""))) if meta.get("id") else None
-        if expected_depth is not None and node.name != meta.get("id"):
-            errors.append(f"Directory name '{node.name}' does not match meta id '{meta.get('id')}'.")
+        if expected_depth is not None and not dir_name_matches_id(node.name, str(meta.get("id", ""))):
+            errors.append(
+                f"Directory name '{node.name}' must be '{meta.get('id')}' "
+                f"or '{meta.get('id')}_<folder-name>'."
+            )
 
         parent = parent_path(node)
         if parent is None:
             if meta.get("parent") is not None:
                 errors.append("Root node must have parent: null.")
         else:
-            if meta.get("parent") != parent.name:
+            parent_id = node_meta_id(parent)
+            if meta.get("parent") != parent_id:
                 errors.append(
-                    f"Meta parent '{meta.get('parent')}' does not match actual parent '{parent.name}'."
+                    f"Meta parent '{meta.get('parent')}' does not match actual parent '{parent_id}'."
                 )
-            if not str(meta.get("id", "")).startswith(f"{parent.name}-"):
+            if not str(meta.get("id", "")).startswith(f"{parent_id}-"):
                 errors.append("Child id must begin with the parent id prefix.")
 
     inheritance_path = node / "rules" / "inheritance.yaml"

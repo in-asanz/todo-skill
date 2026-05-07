@@ -83,3 +83,13 @@ Depth equals the number of suffix segments after the root pair:
 - `TASK-001` -> depth `0`
 - `TASK-001-01` -> depth `1`
 - `TASK-001-01-01` -> depth `2`
+
+## Directory names
+
+The directory name may be either the exact ID or the ID plus a descriptive suffix:
+
+- `TASK-001`
+- `TASK-001_setup-auth-flow`
+- `TASK-001-01_add-login-tests`
+
+The suffix is optional and only helps humans scan folders. The stable machine ID remains `meta.yaml.id`, and the ID prefix preserves lexical ordering.

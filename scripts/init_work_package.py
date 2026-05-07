@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from work_package_lib import (
@@ -9,9 +10,12 @@ from work_package_lib import (
     compute_depth,
     ensure_project_todo_files,
     ensure_valid_id,
+    find_child_node_by_id,
     find_root,
     generate_effective_files,
     is_node_dir,
+    load_yaml,
+    node_dir_name,
     quote_or_null,
     render_template,
     sync_complexity,
@@ -51,6 +55,7 @@ def build_context(
     return {
         "id": node_id,
         "title": title,
+        "title_json": json.dumps(title),
         "type": node_type,
         "parent": quote_or_null(parent_id),
         "depth": str(compute_depth(node_id)),
@@ -73,6 +78,7 @@ def create_node(
     node_type: str,
     parent: Path | None,
     complexity: str,
+    folder_name: str | None,
 ) -> Path:
     ensure_valid_id(node_id)
     root.mkdir(parents=True, exist_ok=True)
@@ -81,17 +87,22 @@ def create_node(
     if parent is not None:
         if not is_node_dir(parent):
             raise ValueError(f"Parent path is not a work-package node: {parent}")
-        expected_prefix = f"{parent.name}-"
+        parent_meta = load_yaml(parent / "meta.yaml")
+        parent_id = str(parent_meta.get("id", ""))
+        ensure_valid_id(parent_id)
+        expected_prefix = f"{parent_id}-"
         if not node_id.startswith(expected_prefix):
             raise ValueError(f"Child id '{node_id}' must start with '{expected_prefix}'.")
-        node_dir = parent / "children" / node_id
-        parent_id = parent.name
+        sibling_container = parent / "children"
+        node_dir = sibling_container / node_dir_name(node_id, folder_name)
     else:
-        node_dir = root / node_id
+        sibling_container = root
+        node_dir = sibling_container / node_dir_name(node_id, folder_name)
         parent_id = None
 
-    if node_dir.exists():
-        raise ValueError(f"Node directory already exists: {node_dir}")
+    existing = find_child_node_by_id(sibling_container, node_id)
+    if existing is not None:
+        raise ValueError(f"Node id '{node_id}' already exists at: {existing}")
 
     for relative_dir in ("plan", "rules", "context", "refs", "children"):
         (node_dir / relative_dir).mkdir(parents=True, exist_ok=True)
@@ -118,6 +129,10 @@ def main() -> None:
     parser.add_argument("--root", required=True, help="Directory that stores top-level nodes.")
     parser.add_argument("--id", required=True, help="Node id, e.g. TASK-001 or TASK-001-01.")
     parser.add_argument("--title", required=True, help="Human-readable node title.")
+    parser.add_argument(
+        "--folder-name",
+        help="Optional human-readable folder suffix. The node id remains the ordering prefix.",
+    )
     parser.add_argument("--parent", help="Existing parent node path.")
     parser.add_argument(
         "--type",
@@ -135,7 +150,15 @@ def main() -> None:
 
     root = Path(args.root).resolve()
     parent = Path(args.parent).resolve() if args.parent else None
-    node_dir = create_node(root, args.id, args.title, args.type, parent, args.complexity)
+    node_dir = create_node(
+        root,
+        args.id,
+        args.title,
+        args.type,
+        parent,
+        args.complexity,
+        args.folder_name,
+    )
     print(f"Created node: {node_dir}")
     print(f"Root node: {find_root(node_dir)}")
 

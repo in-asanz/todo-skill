@@ -64,6 +64,8 @@ def smoke_test_work_package() -> None:
     with tempfile.TemporaryDirectory(prefix="todo-skill-") as temp_dir:
         tasks_root = Path(temp_dir) / "TODO" / "tasks"
         node = tasks_root / "TASK-001"
+        named_node = tasks_root / "TASK-002_named-smoke-task"
+        named_child = named_node / "children" / "TASK-002-01_named-child"
         run_command(
             [
                 sys.executable,
@@ -96,6 +98,38 @@ def smoke_test_work_package() -> None:
             ]
         )
         run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(node)])
+        run_command(
+            [
+                sys.executable,
+                "scripts/init_work_package.py",
+                "--root",
+                str(tasks_root),
+                "--id",
+                "TASK-002",
+                "--title",
+                'Named "smoke" task',
+                "--folder-name",
+                "Named smoke task",
+            ]
+        )
+        run_command(
+            [
+                sys.executable,
+                "scripts/init_work_package.py",
+                "--root",
+                str(tasks_root),
+                "--id",
+                "TASK-002-01",
+                "--title",
+                "Named child",
+                "--parent",
+                str(named_node),
+                "--folder-name",
+                "Named child",
+            ]
+        )
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(named_node)])
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(named_child)])
 
 
 def main() -> None:

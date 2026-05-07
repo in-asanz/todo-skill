@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import re
+import unicodedata
 
 VALID_TYPES = {"container", "task", "leaf"}
 VALID_STATUSES = {
@@ -23,6 +24,7 @@ TERMINAL_STATUSES = USER_GATED_STATUSES
 VALID_COMPLEXITIES = {1, 2, 3}
 VALID_COMPLEXITY_MODES = {"auto", "manual"}
 ID_RE = re.compile(r"^TASK-\d{3}(?:-\d{2})*$")
+NODE_DIR_RE = re.compile(r"^(TASK-\d{3}(?:-\d{2})*)(?:_[a-z0-9]+(?:-[a-z0-9]+)*)?$")
 
 REQUIRED_FILES = (
     "entrypoint.md",
@@ -60,9 +62,39 @@ def ensure_valid_id(node_id: str) -> None:
         )
 
 
+def slugify_folder_name(name: str) -> str:
+    normalized = unicodedata.normalize("NFKD", name.strip())
+    normalized = normalized.encode("ascii", "ignore").decode("ascii").lower()
+    normalized = re.sub(r"[^a-z0-9]+", "-", normalized)
+    normalized = normalized.strip("-")
+    if not normalized:
+        raise ValueError("Folder name must contain at least one ASCII letter or number.")
+    return normalized
+
+
+def node_dir_name(node_id: str, folder_name: str | None = None) -> str:
+    ensure_valid_id(node_id)
+    if folder_name is None or not folder_name.strip():
+        return node_id
+    return f"{node_id}_{slugify_folder_name(folder_name)}"
+
+
+def dir_name_matches_id(directory_name: str, node_id: str) -> bool:
+    ensure_valid_id(node_id)
+    match = NODE_DIR_RE.match(directory_name)
+    return bool(match and match.group(1) == node_id)
+
+
 def compute_depth(node_id: str) -> int:
     ensure_valid_id(node_id)
     return len(node_id.split("-")) - 2
+
+
+def node_meta_id(node: Path) -> str:
+    meta = load_yaml(node / "meta.yaml")
+    node_id = str(meta.get("id", ""))
+    ensure_valid_id(node_id)
+    return node_id
 
 
 def parent_path(node: Path) -> Path | None:
@@ -105,6 +137,20 @@ def find_root(node: Path) -> Path:
         if parent is None:
             return current
         current = parent
+
+
+def find_child_node_by_id(container: Path, node_id: str) -> Path | None:
+    if not container.exists():
+        return None
+    for child in container.iterdir():
+        if not is_node_dir(child):
+            continue
+        try:
+            if node_meta_id(child) == node_id:
+                return child
+        except (ValueError, FileNotFoundError):
+            continue
+    return None
 
 
 def find_todo_root(path: Path) -> Path | None:

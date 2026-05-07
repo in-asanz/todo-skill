@@ -37,6 +37,7 @@ TODO/
   tasks/
     entrypoint.md
     TASK-001/
+    TASK-002_example-named-task/
 ```
 
 ## Main Commands
@@ -47,11 +48,19 @@ Create a root task:
 python scripts/init_work_package.py --root TODO/tasks --id TASK-001 --title "Example task"
 ```
 
+Create a root task with an optional folder suffix:
+
+```powershell
+python scripts/init_work_package.py --root TODO/tasks --id TASK-002 --title "Example named task" --folder-name "Example named task"
+```
+
 Create a child task:
 
 ```powershell
 python scripts/init_work_package.py --root TODO/tasks --id TASK-001-01 --title "Example child" --parent TODO/tasks/TASK-001
 ```
+
+Folder suffixes keep the ID prefix intact, so ordering and hierarchy stay based on `TASK-001`, `TASK-001-01`, and similar IDs.
 
 Refresh complexity and rules:
 

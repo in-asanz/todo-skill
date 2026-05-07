@@ -15,7 +15,8 @@ Recommended layout:
     tasks/
       entrypoint.md
       TASK-001/
-      TASK-002/
+      TASK-002_descriptive-name/
+      TASK-003/
 ```
 
 ## Responsibilities

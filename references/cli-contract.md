@@ -5,12 +5,13 @@
 Create a root node or a child node.
 
 ```text
-python scripts/init_work_package.py --root <dir> --id <id> --title <title> [--parent <path>] [--type <type>] [--complexity <auto|1|2|3>]
+python scripts/init_work_package.py --root <dir> --id <id> --title <title> [--folder-name <name>] [--parent <path>] [--type <type>] [--complexity <auto|1|2|3>]
 ```
 
 - `--root`: directory that stores top-level nodes, usually `<project>/TODO/tasks`
 - `--id`: hierarchical node ID
 - `--title`: human-readable title
+- `--folder-name`: optional human-readable folder suffix; creates names like `TASK-001_setup-auth-flow`
 - `--parent`: existing parent node path; when present, create the new node under `children/`
 - `--type`: `container`, `task`, or `leaf`; default is `task`
 - `--complexity`: managed detail level; default is `auto`
@@ -26,6 +27,12 @@ Behavior:
 - writes managed complexity blocks
 - materializes `rules/effective-rules.md`
 - validates the node before exiting successfully
+
+Directory naming:
+
+- When `--folder-name` is omitted, the directory name is exactly the ID, for example `TASK-001`.
+- When `--folder-name` is present, it is normalized to a lowercase ASCII suffix after the ID, for example `TASK-001_setup-auth-flow`.
+- The stable node ID remains `meta.yaml.id`; the folder suffix is only for human scanning and does not affect hierarchy.
 
 ## `sync_complexity.py`
 
@@ -103,6 +110,7 @@ Checks:
 - required files and directories exist
 - `meta.yaml` has required keys and allowed values
 - ID shape and depth are consistent
+- directory names are either `<id>` or `<id>_<folder-name>`
 - parent-child relationships are coherent
 - `inheritance.yaml` points to real sources
 - `rules/effective-rules.md` exists
