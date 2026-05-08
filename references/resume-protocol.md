@@ -22,6 +22,7 @@ Keep these files aligned:
 - `backlog`: task is not fully defined, needs a better definition, or lacks complete and advanced execution or validation processes
 - `ready`: no work started or re-opened and ready to start
 - `active`: implementation in progress
+- `paused`: intentionally paused without an external blocker and should not continue until resumed
 - `blocked`: waiting on a real blocker
 - `review`: implementation done, validation or review still pending
 - `witherror`: implementation was executed, but validation or review found errors that must be fixed

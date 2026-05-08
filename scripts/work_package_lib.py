@@ -13,6 +13,7 @@ VALID_STATUSES = {
     "backlog",
     "ready",
     "active",
+    "paused",
     "blocked",
     "review",
     "witherror",

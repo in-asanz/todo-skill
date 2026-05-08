@@ -62,7 +62,7 @@ Each work-package node uses the same layout, regardless of depth.
 ## Allowed values
 
 - `type`: `container`, `task`, `leaf`
-- `status`: `backlog`, `ready`, `active`, `blocked`, `review`, `witherror`, `done`, `archived`
+- `status`: `backlog`, `ready`, `active`, `paused`, `blocked`, `review`, `witherror`, `done`, `archived`
 - Agent-driven progression stops at `review`; `done` and `archived` are user-gated terminal statuses.
 
 ## Effective Closure

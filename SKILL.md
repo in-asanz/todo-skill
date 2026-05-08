@@ -61,12 +61,13 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 
 - Use `scripts/update_handoff.py` when a task remains open after a session.
 - Keep `meta.yaml`, `handoff.md`, and `plan/current-step.md` aligned so another agent can resume from disk only.
-- Use explicit statuses: `backlog`, `ready`, `active`, `blocked`, `review`, `witherror`, `done`, `archived`.
+- Use explicit statuses: `backlog`, `ready`, `active`, `paused`, `blocked`, `review`, `witherror`, `done`, `archived`.
 - Use `backlog` when the task is not fully defined, needs a better definition, or lacks complete and advanced execution or validation processes.
+- Use `paused` when the task is intentionally paused without an external blocker and should not continue until it is resumed.
 - Use `witherror` when the task has been executed and implemented, but validation or review found errors that must be fixed.
 - Treat `review` or `witherror` as the last status an agent may set on its own.
 - Set `done` or `archived` only after the user explicitly says to close or retire the node.
-- Treat closure as inherited for interpretation: when a parent or ancestor is `done` or `archived`, every descendant is considered effectively closed even if the descendant's own `meta.yaml.status` still says `ready`, `active`, `blocked`, `review`, or `witherror`.
+- Treat closure as inherited for interpretation: when a parent or ancestor is `done` or `archived`, every descendant is considered effectively closed even if the descendant's own `meta.yaml.status` still says `ready`, `active`, `paused`, `blocked`, `review`, or `witherror`.
 - Do not rewrite a child status just because an ancestor closed; report persisted child status and inherited effective closure separately when that distinction matters.
 - Do not execute an effectively closed descendant unless the user explicitly asks to reopen or continue that descendant despite the ancestor closure.
 

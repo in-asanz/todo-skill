@@ -92,6 +92,18 @@ def smoke_test_work_package() -> None:
                 "--node",
                 str(node),
                 "--status",
+                "paused",
+                "--next-action",
+                "Resume smoke-test work.",
+            ]
+        )
+        run_command(
+            [
+                sys.executable,
+                "scripts/update_handoff.py",
+                "--node",
+                str(node),
+                "--status",
                 "review",
                 "--next-action",
                 "Review smoke-test output.",
