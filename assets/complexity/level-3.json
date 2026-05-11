@@ -2,5 +2,5 @@
   "brief": "- Complexity level 3: keep the description compact and task-local.\n- Prefer one narrow objective and minimal supporting detail.",
   "execute": "- Keep execution instructions short and direct.\n- Reassess complexity when scope expands beyond a simple leaf task.",
   "validate": "- Keep validation tight and local.\n- Ensure the node can still be completed without child coordination.",
-  "roadmap": "## Managed complexity guidance\n\n- Use a concise roadmap.\n- Prefer direct execution over elaborate planning."
+  "roadmap": "## Managed complexity guidance\n\n- Use a concise roadmap.\n- Consider collapsing the suggested baseline phases when a simple task only needs one direct path.\n- Prefer direct execution over elaborate planning."
 }

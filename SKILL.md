@@ -17,8 +17,9 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 3. Read [references/resume-protocol.md](references/resume-protocol.md) when resuming or leaving a partially completed task.
 4. Read [references/complexity-levels.md](references/complexity-levels.md).
 5. Read [references/project-layout.md](references/project-layout.md).
-6. Read [references/question-template.md](references/question-template.md) when the repo cannot answer a decision that changes implementation, validation, scope, or closure.
-7. Read [references/cli-contract.md](references/cli-contract.md) before running scripts directly.
+6. Read [references/prompting-guidance.md](references/prompting-guidance.md) when creating or substantially rewriting task instructions.
+7. Read [references/question-template.md](references/question-template.md) when the repo cannot answer a decision that changes implementation, validation, scope, or closure.
+8. Read [references/cli-contract.md](references/cli-contract.md) before running scripts directly.
 
 ## Workflow
 
@@ -40,6 +41,8 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Let the skill choose complexity automatically unless a user asks for a specific level.
 - Keep project-local config and project rules under `TODO/`, not inside the global skill folder.
 - Keep the global task entrypoint inside `TODO/tasks/entrypoint.md`.
+- When drafting task roadmaps, consider a flexible four-phase baseline: review and analysis, reasoning, implementation, and review and verification. Treat this as guidance only; use fewer phases for simple tasks and more phases when the work genuinely needs them.
+- When drafting task instructions, use `references/prompting-guidance.md` as a quality checklist. Include useful prompting techniques as suggestions, not boilerplate; omit any technique that would add noise without improving execution.
 - After finishing the task description, give the user a ready-to-use resume prompt that references the node's base file, `entrypoint.md`.
 - Format the prompt as: `Use $todo-skill and execute the task described in <absolute-or-project-relative-path-to-node>/entrypoint.md`.
 

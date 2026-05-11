@@ -2,5 +2,5 @@
   "brief": "- Complexity level 1: keep a broad and explicit task description.\n- Record scope boundaries, dependencies, and expected outputs in concrete terms.\n- Prefer splitting meaningful follow-up work into child nodes instead of hiding it in prose.",
   "execute": "- Use phased execution with explicit checkpoints.\n- Review whether this node should delegate work to child nodes before expanding local scope.\n- Reassess complexity after structural changes, new children, or additional dependencies.",
   "validate": "- Validate parent-child boundaries and resume quality.\n- Confirm the node still deserves level 1 detail after current changes.\n- Add broader acceptance checks when the node coordinates multiple surfaces.",
-  "roadmap": "## Managed complexity guidance\n\n- Use a multi-phase roadmap with explicit checkpoints.\n- Reassess whether scope should be split into child nodes.\n- Keep roadmap text detailed enough for coordination-heavy work."
+  "roadmap": "## Managed complexity guidance\n\n- Use a multi-phase roadmap with explicit checkpoints.\n- Consider the suggested baseline phases: review and analysis, reasoning, implementation, and review and verification.\n- Reassess whether scope should be split into child nodes.\n- Keep roadmap text detailed enough for coordination-heavy work."
 }
