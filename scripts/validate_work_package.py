@@ -60,6 +60,14 @@ def validate_node(node: Path) -> list[str]:
             if not str(meta.get("id", "")).startswith(f"{parent_id}-"):
                 errors.append("Child id must begin with the parent id prefix.")
 
+        children_dir = node / "children"
+        has_children = (
+            children_dir.exists()
+            and any(item.is_dir() and is_node_dir(item) for item in children_dir.iterdir())
+        )
+        if has_children and (meta.get("type") == "leaf" or meta.get("complexity_level") == 3):
+            errors.append("Low-complexity or leaf nodes cannot have child nodes.")
+
     inheritance_path = node / "rules" / "inheritance.yaml"
     if inheritance_path.exists():
         inheritance = load_yaml(inheritance_path)

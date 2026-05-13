@@ -45,6 +45,7 @@ REQUIRED_FILES = (
 
 REQUIRED_DIRS = ("plan", "rules", "context", "refs", "children")
 MANAGED_MARKERS = {
+    "entrypoint": ("<!-- COMPLEXITY:ENTRYPOINT:START -->", "<!-- COMPLEXITY:ENTRYPOINT:END -->"),
     "brief": ("<!-- COMPLEXITY:BRIEF:START -->", "<!-- COMPLEXITY:BRIEF:END -->"),
     "execute": ("<!-- COMPLEXITY:EXECUTE:START -->", "<!-- COMPLEXITY:EXECUTE:END -->"),
     "validate": ("<!-- COMPLEXITY:VALIDATE:START -->", "<!-- COMPLEXITY:VALIDATE:END -->"),
@@ -301,14 +302,19 @@ def recommend_complexity(node_dir: Path, meta: dict) -> tuple[int, str]:
     refs_count = count_refs(node_dir)
     node_type = str(meta.get("type", "task"))
 
+    if node_type == "leaf" and child_count == 0 and depends_count == 0 and refs_count == 0:
+        return 3, (
+            f"low_complexity_leaf(type={node_type}, children={child_count}, "
+            f"depends_on={depends_count}, refs={refs_count})"
+        )
     if node_type == "container" or child_count > 0 or depends_count >= 2 or refs_count >= 3:
         return 1, (
-            f"container_or_coordinated_scope(type={node_type}, children={child_count}, "
+            f"high_complexity_system_scope(type={node_type}, children={child_count}, "
             f"depends_on={depends_count}, refs={refs_count})"
         )
     if node_type == "task" or depends_count == 1 or refs_count >= 1:
         return 2, (
-            f"medium_scope(type={node_type}, children={child_count}, "
+            f"medium_feature_or_maintenance_scope(type={node_type}, children={child_count}, "
             f"depends_on={depends_count}, refs={refs_count})"
         )
     return 3, (
@@ -327,6 +333,14 @@ def replace_managed_block(text: str, block_key: str, replacement: str) -> str:
     return text[:start_content] + "\n" + replacement.strip() + "\n" + text[end:]
 
 
+def upsert_managed_block(text: str, block_key: str, replacement: str) -> str:
+    start_marker, end_marker = MANAGED_MARKERS[block_key]
+    if start_marker in text or end_marker in text:
+        return replace_managed_block(text, block_key, replacement)
+    suffix = f"\n\n{start_marker}\n{replacement.strip()}\n{end_marker}\n"
+    return text.rstrip() + suffix
+
+
 def sync_complexity(node_dir: Path, requested_level: int | str = "auto") -> tuple[int, str]:
     meta_path = node_dir / "meta.yaml"
     meta = load_yaml(meta_path)
@@ -343,6 +357,7 @@ def sync_complexity(node_dir: Path, requested_level: int | str = "auto") -> tupl
     skill_dir = Path(__file__).resolve().parent
     profile = load_complexity_profile(skill_dir, level)
     file_map = {
+        "entrypoint": node_dir / "entrypoint.md",
         "brief": node_dir / "brief.md",
         "execute": node_dir / "execute.md",
         "validate": node_dir / "validate.md",
@@ -350,7 +365,7 @@ def sync_complexity(node_dir: Path, requested_level: int | str = "auto") -> tupl
     }
     for key, path in file_map.items():
         text = path.read_text(encoding="utf-8")
-        path.write_text(replace_managed_block(text, key, profile[key]), encoding="utf-8")
+        path.write_text(upsert_managed_block(text, key, profile[key]), encoding="utf-8")
 
     meta["complexity_level"] = level
     meta["complexity_mode"] = mode

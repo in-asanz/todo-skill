@@ -46,7 +46,7 @@ def validate_references_exist() -> None:
 
 
 def validate_complexity_profiles() -> None:
-    required_keys = {"brief", "execute", "validate", "roadmap"}
+    required_keys = {"entrypoint", "brief", "execute", "validate", "roadmap"}
     for path in sorted((ROOT / "assets" / "complexity").glob("level-*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         missing = required_keys - set(data)
@@ -63,9 +63,9 @@ def validate_scripts_compile() -> None:
 def smoke_test_work_package() -> None:
     with tempfile.TemporaryDirectory(prefix="todo-skill-") as temp_dir:
         tasks_root = Path(temp_dir) / "TODO" / "tasks"
-        node = tasks_root / "TASK-001"
-        named_node = tasks_root / "TASK-002_named-smoke-task"
-        named_child = named_node / "children" / "TASK-002-01_named-child"
+        high_node = tasks_root / "TASK-001_high-complexity-system"
+        medium_node = tasks_root / "TASK-002_medium-feature-flow"
+        low_node = tasks_root / "TASK-003_low-complexity-fix"
         run_command(
             [
                 sys.executable,
@@ -75,22 +75,100 @@ def smoke_test_work_package() -> None:
                 "--id",
                 "TASK-001",
                 "--title",
-                "Quick validation smoke task",
+                "Build a new production analytics system",
+                "--folder-name",
+                "High complexity system",
+                "--type",
+                "container",
+                "--complexity",
+                "auto",
+            ]
+        )
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(high_node)])
+        high_meta = json.loads((high_node / "meta.yaml").read_text(encoding="utf-8"))
+        if high_meta["complexity_level"] != 1:
+            fail("container node should resolve to complexity level 1.")
+        high_brief = (high_node / "brief.md").read_text(encoding="utf-8")
+        if "senior" not in high_brief.lower() or "production" not in high_brief.lower():
+            fail("level 1 brief should include senior production-quality framing.")
+
+        run_command(
+            [
+                sys.executable,
+                "scripts/init_work_package.py",
+                "--root",
+                str(tasks_root),
+                "--id",
+                "TASK-002",
+                "--title",
+                "Refactor checkout flow",
+                "--folder-name",
+                "Medium feature flow",
                 "--type",
                 "task",
                 "--complexity",
                 "auto",
             ]
         )
-        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(node)])
-        run_command([sys.executable, "scripts/sync_complexity.py", "--node", str(node)])
-        run_command([sys.executable, "scripts/sync_rules.py", "--node", str(node)])
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(medium_node)])
+        medium_meta = json.loads((medium_node / "meta.yaml").read_text(encoding="utf-8"))
+        if medium_meta["complexity_level"] != 2:
+            fail("task node should resolve to complexity level 2.")
+
+        run_command(
+            [
+                sys.executable,
+                "scripts/init_work_package.py",
+                "--root",
+                str(tasks_root),
+                "--id",
+                "TASK-003",
+                "--title",
+                "Fix local input trimming helper",
+                "--folder-name",
+                "Low complexity fix",
+                "--type",
+                "leaf",
+                "--complexity",
+                "3",
+            ]
+        )
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(low_node)])
+        low_entrypoint = (low_node / "entrypoint.md").read_text(encoding="utf-8")
+        for expected in ("Professional profile", "Mission", "Context", "Scope", "Execution", "Validation", "Handoff"):
+            if expected not in low_entrypoint:
+                fail(f"level 3 entrypoint is missing compact section: {expected}")
+
+        blocked_child = subprocess.run(
+            [
+                sys.executable,
+                "scripts/init_work_package.py",
+                "--root",
+                str(tasks_root),
+                "--id",
+                "TASK-003-01",
+                "--title",
+                "Invalid low-level child",
+                "--parent",
+                str(low_node),
+            ],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+        )
+        if blocked_child.returncode == 0:
+            fail("level 3 leaf nodes must reject child creation.")
+        if "cannot have child nodes" not in (blocked_child.stdout + blocked_child.stderr):
+            fail("level 3 child rejection should explain that low-level nodes cannot have child nodes.")
+
+        run_command([sys.executable, "scripts/sync_complexity.py", "--node", str(medium_node)])
+        run_command([sys.executable, "scripts/sync_rules.py", "--node", str(medium_node)])
         run_command(
             [
                 sys.executable,
                 "scripts/update_handoff.py",
                 "--node",
-                str(node),
+                str(medium_node),
                 "--status",
                 "paused",
                 "--next-action",
@@ -102,28 +180,14 @@ def smoke_test_work_package() -> None:
                 sys.executable,
                 "scripts/update_handoff.py",
                 "--node",
-                str(node),
+                str(medium_node),
                 "--status",
                 "review",
                 "--next-action",
                 "Review smoke-test output.",
             ]
         )
-        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(node)])
-        run_command(
-            [
-                sys.executable,
-                "scripts/init_work_package.py",
-                "--root",
-                str(tasks_root),
-                "--id",
-                "TASK-002",
-                "--title",
-                'Named "smoke" task',
-                "--folder-name",
-                "Named smoke task",
-            ]
-        )
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(medium_node)])
         run_command(
             [
                 sys.executable,
@@ -133,15 +197,25 @@ def smoke_test_work_package() -> None:
                 "--id",
                 "TASK-002-01",
                 "--title",
-                "Named child",
+                "Valid medium child",
                 "--parent",
-                str(named_node),
+                str(medium_node),
                 "--folder-name",
-                "Named child",
+                "Valid medium child",
             ]
         )
-        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(named_node)])
-        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(named_child)])
+        medium_child = medium_node / "children" / "TASK-002-01_valid-medium-child"
+        run_command([sys.executable, "scripts/validate_work_package.py", "--node", str(medium_child)])
+
+        run_command([sys.executable, "scripts/sync_complexity.py", "--node", str(medium_node), "--level", "3"])
+        invalid_level3 = subprocess.run(
+            [sys.executable, "scripts/validate_work_package.py", "--node", str(medium_node)],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+        )
+        if invalid_level3.returncode == 0:
+            fail("validation should reject level 3 nodes that contain children.")
 
 
 def main() -> None:

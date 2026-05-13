@@ -63,6 +63,7 @@ def build_context(
         "complexity_level": "2" if complexity_mode == "auto" else complexity_mode,
         "complexity_mode": "auto" if complexity_mode == "auto" else "manual",
         "complexity_reason": "awaiting_initial_review",
+        "complexity_entrypoint": "- Initial managed complexity block. Run complexity review after creation.",
         "complexity_brief": "- Initial managed complexity block. Run complexity review after creation.",
         "complexity_execute": "- Initial managed complexity block. Run complexity review after creation.",
         "complexity_validate": "- Initial managed complexity block. Run complexity review after creation.",
@@ -88,6 +89,11 @@ def create_node(
         if not is_node_dir(parent):
             raise ValueError(f"Parent path is not a work-package node: {parent}")
         parent_meta = load_yaml(parent / "meta.yaml")
+        if parent_meta.get("type") == "leaf" or parent_meta.get("complexity_level") == 3:
+            raise ValueError(
+                "Low-complexity or leaf nodes cannot have child nodes. "
+                "Keep the work inside the parent node or raise the parent complexity first."
+            )
         parent_id = str(parent_meta.get("id", ""))
         ensure_valid_id(parent_id)
         expected_prefix = f"{parent_id}-"

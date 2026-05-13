@@ -27,6 +27,7 @@ Behavior:
 - writes managed complexity blocks
 - materializes `rules/effective-rules.md`
 - validates the node before exiting successfully
+- rejects child creation when the parent is a level 3 or `leaf` node
 
 Directory naming:
 
@@ -45,7 +46,7 @@ python scripts/sync_complexity.py --node <path> [--level <auto|1|2|3>]
 Behavior:
 
 - recommends complexity automatically when `--level auto`
-- updates managed blocks in `brief.md`, `execute.md`, `validate.md`, and `plan/local-roadmap.md`
+- updates managed blocks in `entrypoint.md`, `brief.md`, `execute.md`, `validate.md`, and `plan/local-roadmap.md`
 - updates complexity metadata in `meta.yaml`
 - preserves manual text outside managed markers
 
@@ -117,3 +118,4 @@ Checks:
 - `rules/effective-rules.md` exists
 - project rules exist when the node lives under `TODO/`
 - complexity metadata exists and managed blocks are present
+- level 3 and `leaf` nodes do not contain child nodes

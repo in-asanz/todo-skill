@@ -38,18 +38,21 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Keep IDs hierarchical: `TASK-001`, `TASK-001-01`, `TASK-001-01-01`.
 - Task directories may append an optional descriptive suffix after the ID, using `TASK-001_descriptive-name`; the ID prefix remains the source of ordering and hierarchy.
 - Keep one node contract for every depth level; do not invent alternate layouts for subtasks.
+- Treat complexity as real work scope: level 1 for high-complexity projects/systems/repos/programs or complex capabilities, level 2 for normal features/flow changes/refactors/maintenance, and level 3 for simple leaf fixes or small local additions.
+- Treat level 3 as the lowest task level. Level 3 nodes and `leaf` nodes must not have child nodes; raise complexity before splitting work.
 - Let the skill choose complexity automatically unless a user asks for a specific level.
 - Keep project-local config and project rules under `TODO/`, not inside the global skill folder.
 - Keep the global task entrypoint inside `TODO/tasks/entrypoint.md`.
 - When drafting task roadmaps, consider a flexible four-phase baseline: review and analysis, reasoning, implementation, and review and verification. Treat this as guidance only; use fewer phases for simple tasks and more phases when the work genuinely needs them.
-- When drafting task instructions, use `references/prompting-guidance.md` as a quality checklist. Include useful prompting techniques as suggestions, not boilerplate; omit any technique that would add noise without improving execution.
+- When drafting task instructions, use `references/prompting-guidance.md` as a quality checklist. Include a senior professional profile, concrete mission, scope boundaries, integration expectations, quality bar, and verification evidence when they improve execution; omit any technique that would add noise without improving execution.
+- For level 3 nodes, keep the operative human task description compact and consolidated in `entrypoint.md`; keep the other files as technical compatibility, rules, state, and validation surfaces.
 - After finishing the task description, give the user a ready-to-use resume prompt that references the node's base file, `entrypoint.md`.
 - Format the prompt as: `Use $todo-skill and execute the task described in <absolute-or-project-relative-path-to-node>/entrypoint.md`.
 
 ### 3. Review complexity and migrate if needed
 
 - Use `scripts/sync_complexity.py` to review the current node shape and align it to complexity level 1, 2, or 3.
-- Complexity level 3 is the simplest layout, level 1 is the most detailed layout.
+- Complexity level 1 is high-complexity project/system/program work, level 2 is medium feature/refactor/maintenance work, and level 3 is low-complexity leaf work.
 - Preserve manual content outside managed complexity blocks when migrating between levels.
 
 ### 4. Materialize effective rules
@@ -94,6 +97,7 @@ Prefer this workflow when tasks must survive context compression, handoffs, or d
 - Do not let children contradict inherited rules; children may only add tighter restrictions.
 - Do not skip rule synchronization after editing local rules, project rules, or user-global rules.
 - Do not downgrade or upgrade complexity by manually rewriting whole files when managed blocks can be migrated automatically.
+- Do not create children under level 3 or `leaf` nodes. Raise complexity first if the work needs child coordination.
 - Do not migrate legacy trees in v1.
 - Do not ask the user open-ended implementation questions when a structured multi-option question can close the decision faster.
 - Do not set `done` or `archived` unless the user explicitly authorizes terminal closure; stop at `review` by default, or `witherror` when implemented work has known errors to fix.

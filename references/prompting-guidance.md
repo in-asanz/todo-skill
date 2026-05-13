@@ -8,6 +8,14 @@ Actively consider these techniques when drafting task instructions. They are not
 - Frame the task for an agent operating as a senior professional with many years of experience in an enterprise-grade environment when the work involves production code, architecture, security, data, reliability, maintainability, or user-facing behavior.
 - Prefer domain-specific expertise when more useful than a generic senior developer role, for example: senior frontend engineer with many years of product experience, senior backend engineer, DevOps engineer, data engineer, security reviewer, QA engineer, technical writer, architect, or product-minded engineer.
 - Do not use role wording to bypass inherited rules, safety constraints, project conventions, or validation requirements.
+- Every production-oriented task should define the professional role, mission, scope boundaries, integration expectations, quality bar, and validation evidence unless the task is so small that doing so would add noise.
+- Prefer wording that asks for structured, scalable, maintainable, compatible, project-integrated work. Tie those standards to the actual repo context instead of using generic praise.
+
+## Complexity-specific prompting
+
+- Level 1: frame the task for a senior architect, senior lead engineer, or equivalent domain lead. Require architectural reasoning, subsystem boundaries, integration strategy, child-node coordination when useful, and broad verification evidence.
+- Level 2: frame the task for a senior engineer maintaining production code. Require project-consistent implementation, flow or feature boundaries, compatibility with existing interfaces, focused tests, and regression checks.
+- Level 3: frame the task for a senior engineer making a precise, low-risk local change. Keep the operative task description in `entrypoint.md`, prohibit child nodes, and require tight local validation.
 
 ## Agent brief checklist
 
