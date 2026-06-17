@@ -1,4 +1,0 @@
-interface:
-  display_name: "Todo Skill"
-  short_description: "Create recursive self-contained task trees"
-  default_prompt: "Use $todo-skill to create a self-contained recursive task tree."

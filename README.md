@@ -1,24 +1,24 @@
 # Todo Skill
 
-Codex skill for creating recursive, self-contained TODO task trees that can be resumed from disk without relying on chat history.
+Portable agent skill for simple file-based TODO plans that can be resumed from
+disk without relying on chat history.
 
 ## What It Does
 
-- Creates root tasks and nested subtasks with a consistent node layout.
-- Materializes inherited rules into each node's `rules/effective-rules.md`.
-- Keeps project-local task data under `TODO/`.
-- Tracks resumable state through `meta.yaml`, `handoff.md`, and `plan/current-step.md`.
-- Supports managed task complexity levels for simple, medium, and coordination-heavy work.
+- Creates or updates `TODO.md`.
+- Uses optional `TODO/TASK-001.md` files for detailed tasks.
+- Tracks status, checklist, notes, and handoff in Markdown.
+- Avoids scripts, config, and recursive task frameworks.
 
 ## Installation
 
-Place this repository in your Codex skills directory:
+Place this folder in any agent skills directory that supports `SKILL.md`.
 
 ```text
-~/.codex/skills/todo-skill
+skills/todo-skill
 ```
 
-Then invoke it as:
+Invoke it as:
 
 ```text
 $todo-skill
@@ -26,81 +26,39 @@ $todo-skill
 
 ## Typical Layout
 
-The skill keeps reusable logic in the skill folder and project-specific task data in the target project's `TODO/` folder:
+The skill keeps project task state in the target repository:
 
 ```text
 TODO/
-  config/
-    todo-skill.json
-  rules/
-    project-rules.md
-  tasks/
-    entrypoint.md
-    TASK-001/
-    TASK-002_example-named-task/
+  TASK-001.md
+  TASK-002.md
+TODO.md
 ```
 
-## Main Commands
+## Task Format
 
-Create a root task:
+```markdown
+# TASK-001 - Short Title
 
-```powershell
-python scripts/init_work_package.py --root TODO/tasks --id TASK-001 --title "Example task"
-```
+Status: backlog | active | blocked | review | done
 
-Create a root task with an optional folder suffix:
+## Goal
+...
 
-```powershell
-python scripts/init_work_package.py --root TODO/tasks --id TASK-002 --title "Example named task" --folder-name "Example named task"
-```
+## Checklist
+- [ ] ...
 
-Create a child task:
+## Notes
+...
 
-```powershell
-python scripts/init_work_package.py --root TODO/tasks --id TASK-001-01 --title "Example child" --parent TODO/tasks/TASK-001
-```
-
-Folder suffixes keep the ID prefix intact, so ordering and hierarchy stay based on `TASK-001`, `TASK-001-01`, and similar IDs.
-
-Refresh complexity and rules:
-
-```powershell
-python scripts/resolve_effective_state.py --node TODO/tasks/TASK-001
-```
-
-Update resumable state:
-
-```powershell
-python scripts/update_handoff.py --node TODO/tasks/TASK-001 --status review --next-action "Review the result."
-```
-
-Validate a node:
-
-```powershell
-python scripts/validate_work_package.py --node TODO/tasks/TASK-001
-```
-
-Validate the skill itself:
-
-```powershell
-python quick_validate.py
+## Handoff
+...
 ```
 
 ## Status Rules
 
-Agents may move a task through `backlog`, `ready`, `active`, `paused`, `blocked`, `review`, and `witherror`.
-Use `backlog` when a task is not fully defined or still needs better execution or validation process definition.
-Use `paused` when a task is intentionally paused without an external blocker and should not continue until it is resumed.
-Use `witherror` when a task was executed and implemented, but validation or review found errors that must be fixed.
-
-Terminal statuses are user-gated:
-
-- `done`
-- `archived`
-
-Use `--user-approved-terminal-status` only when the user explicitly approves closing or retiring a node.
-When a parent task is `done` or `archived`, all descendants are considered effectively closed, but their own `meta.yaml.status` values are not changed automatically.
-
-## Publishing Notes
-
-Generated project task state lives under `TODO/` and is ignored by this repository. Publish the reusable skill files, not local task instances.
+- `backlog`: not started or not fully shaped.
+- `active`: being worked now.
+- `blocked`: waiting on external input.
+- `review`: implementation is done and needs review or validation.
+- `done`: complete and validated.
